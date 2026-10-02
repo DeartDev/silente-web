@@ -1,0 +1,19 @@
+# --- Sitio generado ---
+/dist/
+
+# --- Python ---
+__pycache__/
+*.pyc
+.venv/
+
+# --- Secretos (contrato nomadservernw, regla 6) ---
+.env
+.env.*
+!.env.example
+
+# --- Editores y sistema ---
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+.DS_Store

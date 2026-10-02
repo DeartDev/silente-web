@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <title>Silente</title>
+  <g transform="translate(200 200) scale(3.1148) translate(-100 -100)"><rect x="61" y="93" width="78" height="7" rx="3.5" fill="#8C7FB8" fill-opacity="1.0"/><rect x="74" y="78" width="52" height="7" rx="3.5" fill="#8C7FB8" fill-opacity="0.6"/><circle cx="88" cy="66" r="3.8" fill="#8C7FB8" fill-opacity="0.45"/><circle cx="100" cy="66" r="3.8" fill="#8C7FB8" fill-opacity="0.32"/><circle cx="112" cy="66" r="3.8" fill="#8C7FB8" fill-opacity="0.2"/><path fill="#C8A86B" d="M100 116 C84 106 64 104 48 110 L48 130 C64 124 84 126 100 136Z"/><path fill="#C8A86B" fill-opacity="0.82" d="M100 116 C116 106 136 104 152 110 L152 130 C136 124 116 126 100 136Z"/></g>
+</svg>
