@@ -4,6 +4,11 @@ Cambios visibles de la web de Silente. Formato basado en [Keep a Changelog](http
 
 ## [Sin publicar]
 
+### Añadido
+
+- Imagen Docker (nginx sin privilegios) con las cabeceras de seguridad de la web, caché larga para los recursos, redirecciones a las URL canónicas y logs sin la IP completa.
+- Vista previa local en `http://localhost:9020` y compose de producción para nomadservernw.
+
 ## [0.1.0] - 2026-10-02
 
 ### Añadido
