@@ -14,12 +14,14 @@ Se publica en **https://silente.nordirwork.com**, dockerizada, en el servidor do
 
 - ✅ Spec validado (decisiones L-01…L-06 cerradas).
 - ✅ Directorio preparado con los recursos: textos legales, logo, fuentes, capturas y referencias.
-- ⏳ Nada implementado. Sin repositorio git remoto: hay que crear `DeartDev/silente-web` **público** (L-03), con *squash merge* y la rama `main` protegida (o un hook `pre-push` como en la app si la protección no está disponible).
+- ✅ Repositorio público [DeartDev/silente-web](https://github.com/DeartDev/silente-web) creado (2026-10-02): solo *squash merge* y borrado de ramas al fusionar. gitleaks limpio y capturas revisadas antes de publicarlo.
+- ⏳ Falta proteger `main` en GitHub (gratis en repos públicos) cuando exista el CI, exigiendo sus checks.
+- ⏳ Nada implementado.
 
 ## Primeros pasos para la sesión que empiece el proyecto
 
 1. Leer `docs/spec.md` y este archivo.
-2. Crear el repositorio público `DeartDev/silente-web` y subir este contenido. Antes de hacerlo público: gitleaks en todo el historial y revisión de las capturas (LP-11).
+2. ✅ Repositorio creado. Pendiente de LP-11: la captura `diario-editor.jpg` tiene un texto de prueba descuidado («PruebaEl canonigo…»); conviene repetirla con una reflexión de ejemplo bien escrita antes de usarla en la web.
 3. Seguir el plan del §11 del spec:
    - generador `build.py` + plantillas + CSS → `dist/`;
    - `nginx.conf` + `Dockerfile` multi-etapa (Python → `nginxinc/nginx-unprivileged:<versión fija>-alpine`, puerto 8080);
