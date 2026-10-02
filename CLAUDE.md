@@ -26,7 +26,7 @@ Se publica en **https://silente.nordirwork.com**, dockerizada, en el servidor do
 ## Primeros pasos para la sesión que empiece el proyecto
 
 1. Leer `docs/spec.md` y este archivo.
-2. ✅ Repositorio creado. Pendiente de LP-11: la captura `diario-editor.jpg` tiene un texto de prueba descuidado («PruebaEl canonigo…»); conviene repetirla con una reflexión de ejemplo bien escrita antes de usarla en la web.
+2. ✅ Repositorio creado. ✅ LP-11: capturas nuevas en claro y oscuro, tomadas en el g31 ([docs/capturas.md](docs/capturas.md)); las de `docs/referencias/capturas/` ya no se usan.
 3. Seguir el plan del §11 del spec:
    - generador `build.py` + plantillas + CSS → `dist/`;
    - `nginx.conf` + `Dockerfile` multi-etapa (Python → `nginxinc/nginx-unprivileged:<versión fija>-alpine`, puerto 8080);

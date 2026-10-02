@@ -12,4 +12,5 @@ Cambios visibles de la web de Silente. Formato basado en [Keep a Changelog](http
 - Política de privacidad (`/privacidad`) y términos de uso (`/terminos`), generados sin cambios desde `legal/`.
 - Página 404 propia, `/salud`, `robots.txt` y `sitemap.xml`.
 - Tema claro y oscuro según el sistema, sin JavaScript.
-- Fuentes Lora y Nunito Sans servidas desde la propia web, y capturas en WebP.
+- Fuentes Lora y Nunito Sans servidas desde la propia web.
+- Capturas de la app tomadas para la web en tema claro y oscuro: cada visitante ve las de su tema.

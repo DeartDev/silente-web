@@ -276,6 +276,10 @@ main > .alt {
   overflow: hidden;
 }
 
+.phone picture {
+  display: block;
+}
+
 .phone img {
   width: 100%;
   border-radius: 1.4rem;

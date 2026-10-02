@@ -241,6 +241,26 @@ class SiteTest(unittest.TestCase):
         for svg in self.pages["index.html"].find("svg"):
             self.assertEqual(svg.get("aria-hidden"), "true")
 
+    def test_screenshots_have_a_dark_variant(self):
+        page = self.pages["index.html"]
+        sources = page.find("source")
+        self.assertEqual(len(sources), len(page.find("img")))
+        for source in sources:
+            with self.subTest(srcset=source["srcset"][:40]):
+                self.assertEqual(source["media"], "(prefers-color-scheme: dark)")
+                self.assertIn("-oscuro-", source["srcset"])
+                self.assertTrue(source.get("width") and source.get("height"))
+        for image in page.find("img"):
+            self.assertIn("-claro-", image["srcset"])
+
+    def test_srcset_files_exist(self):
+        for name, page in self.pages.items():
+            for tag, attrs in page.tags:
+                for candidate in filter(None, attrs.get("srcset", "").split(",")):
+                    url = candidate.split()[0]
+                    with self.subTest(page=name, url=url):
+                        self.assertTrue((self.dist / url.lstrip("/")).is_file())
+
     def test_only_the_hero_image_loads_eagerly(self):
         images = self.pages["index.html"].find("img")
         self.assertEqual(images[0].get("fetchpriority"), "high")
@@ -282,9 +302,13 @@ class SiteTest(unittest.TestCase):
         resources |= set(re.findall(r"(/assets/[^\s,\"]+) \d+w", source))  # srcset
         resources |= set(re.findall(r'url\("(/assets/[^"]+)"', css.read_text()))
         resources = {r for r in resources if "/og." not in r}  # only for link previews
-        total = len(source.encode()) + sum((self.dist / r.lstrip("/")).stat().st_size for r in resources)
-        # Everything, as if the browser downloaded both sizes of every image.
-        self.assertLessEqual(total, 500 * 1024)
+        # A browser loads the screenshots of one theme only. Per theme, count
+        # everything, as if it downloaded both sizes of every image.
+        for theme, other in (("claro", "oscuro"), ("oscuro", "claro")):
+            loaded = {r for r in resources if f"-{other}-" not in r}
+            total = len(source.encode()) + sum((self.dist / r.lstrip("/")).stat().st_size for r in loaded)
+            with self.subTest(theme=theme, kb=total // 1024):
+                self.assertLessEqual(total, 500 * 1024)
         # Requests: the page plus one size per image and each other resource.
         images = len(self.pages["index.html"].find("img"))
         others = {r for r in resources if not r.endswith(".webp")}

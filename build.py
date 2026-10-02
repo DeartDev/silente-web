@@ -11,7 +11,8 @@ committed.
 Templates use `{{ name }}` placeholders:
 - `{{ asset:path }}` → URL of a hashed asset (`/assets/name.<hash>.ext`);
 - `{{ absolute_asset:path }}` → the same, with the site origin;
-- `{{ shot:name|alt[|eager] }}` → a screenshot `<img>` with srcset and size;
+- `{{ shot:name|alt[|eager] }}` → a screenshot `<picture>`: the light one by
+  default and the dark one with `prefers-color-scheme: dark`;
 - anything else → a value of the page context (already safe HTML).
 A placeholder without a value fails the build.
 """
@@ -51,6 +52,7 @@ ASSETS = {
     "img/og.png": SRC / "img/og.png",
 }
 SHOT_WIDTHS = (240, 432)
+SHOT_THEMES = ("claro", "oscuro")
 # The phone frame is 240 px wide with a 10 px border.
 SHOT_SIZES = "220px"
 
@@ -141,17 +143,25 @@ class Site:
 
     def shot(self, spec: str) -> str:
         name, alt, *flags = spec.split("|")
-        widths = []
-        for width in SHOT_WIDTHS:
-            logical = f"img/{name}-{width}.webp"
-            widths.append((width, self.asset(logical), webp_size(SRC / logical)))
-        (_, src, (width, height)) = widths[0]
-        srcset = ", ".join(f"{url} {w}w" for w, url, _ in widths)
+        variants = {}
+        for theme in SHOT_THEMES:
+            widths = []
+            for width in SHOT_WIDTHS:
+                logical = f"img/{name}-{theme}-{width}.webp"
+                widths.append((width, self.asset(logical), webp_size(SRC / logical)))
+            variants[theme] = widths
+        sizes = {widths[0][2] for widths in variants.values()}
+        if len(sizes) != 1:
+            raise BuildError(f"{name}: las capturas clara y oscura tienen tamaños distintos")
+        (width, height) = sizes.pop()
+        srcset = {t: ", ".join(f"{url} {w}w" for w, url, _ in v) for t, v in variants.items()}
         loading = 'fetchpriority="high"' if flags == ["eager"] else 'loading="lazy"'
         return (
-            f'<img src="{src}" srcset="{srcset}" sizes="{SHOT_SIZES}" '
+            f'<picture><source media="(prefers-color-scheme: dark)" srcset="{srcset["oscuro"]}" '
+            f'sizes="{SHOT_SIZES}" width="{width}" height="{height}">'
+            f'<img src="{variants["claro"][0][1]}" srcset="{srcset["claro"]}" sizes="{SHOT_SIZES}" '
             f'width="{width}" height="{height}" alt="{html.escape(alt)}" '
-            f'{loading} decoding="async">'
+            f'{loading} decoding="async"></picture>'
         )
 
     # Templates

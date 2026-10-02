@@ -5,13 +5,18 @@ Run it by hand when a source changes and commit the result; the Docker build
 only needs the standard library and `markdown`.
 
     pip install -r requirements-dev.txt
-    python3 tools/make_assets.py
+    python3 tools/make_assets.py                 # everything
+    python3 tools/make_assets.py shots og        # only some parts
+
+Parts: fonts, shots, favicons, og. Fonts and PNGs are not byte-for-byte
+reproducible, so regenerate only what changed.
 
 Needs ImageMagick 7 with librsvg (`magick`) for the favicons.
 
 Outputs:
 - fonts/*.woff2: Lora and Nunito Sans (roman and italic), Latin subset;
-- src/img/<shot>-{240,432}.webp: the screenshots of spec §5;
+- src/img/<shot>-<theme>-{240,432}.webp: the screenshots of spec §5, in the
+  light (claro) and dark (oscuro) themes, from src/capturas/<theme>/*.jpg;
 - brand/favicon-32.png, brand/apple-touch-icon.png, brand/favicon.ico;
 - src/img/og.png: Open Graph image, 1200 × 630.
 """
@@ -27,7 +32,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
 FONTS = ROOT / "fonts"
-SHOTS = ROOT / "docs" / "referencias" / "capturas"
+SHOTS = ROOT / "src" / "capturas"
 IMG = ROOT / "src" / "img"
 BRAND = ROOT / "brand"
 
@@ -43,10 +48,11 @@ FONT_FILES = {
     "NunitoSans-Variable.ttf": "nunito-sans.woff2",
     "NunitoSans-Italic-Variable.ttf": "nunito-sans-italic.woff2",
 }
+SHOT_THEMES = ["claro", "oscuro"]
 SHOT_NAMES = [
     "lector-pagina",
     "biblioteca-inicio",
-    "lector-ajustes-oscuro",
+    "lector-ajustes",
     "diario-editor",
     "ajustes-exportar",
     "libro-de-silente-portada",
@@ -80,13 +86,14 @@ def make_fonts() -> None:
 
 def make_shots() -> None:
     IMG.mkdir(parents=True, exist_ok=True)
-    for name in SHOT_NAMES:
-        with Image.open(SHOTS / f"{name}.jpg") as shot:
-            for width in SHOT_WIDTHS:
-                height = round(shot.height * width / shot.width)
-                out = IMG / f"{name}-{width}.webp"
-                shot.resize((width, height), Image.LANCZOS).save(out, "WEBP", quality=80, method=6)
-                print(f"src/img/{out.name}: {width}×{height}, {out.stat().st_size // 1024} KB")
+    for theme in SHOT_THEMES:
+        for name in SHOT_NAMES:
+            with Image.open(SHOTS / theme / f"{name}.jpg") as shot:
+                for width in SHOT_WIDTHS:
+                    height = round(shot.height * width / shot.width)
+                    out = IMG / f"{name}-{theme}-{width}.webp"
+                    shot.resize((width, height), Image.LANCZOS).save(out, "WEBP", quality=80, method=6)
+                    print(f"src/img/{out.name}: {width}×{height}, {out.stat().st_size // 1024} KB")
 
 
 def render_mark(size: int, out: Path, background: str = "none", padding: int = 0) -> None:
@@ -136,11 +143,17 @@ def make_og() -> None:
     print(f"src/img/og.png: {out.stat().st_size // 1024} KB")
 
 
+PARTS = {"fonts": make_fonts, "shots": make_shots, "favicons": make_favicons, "og": make_og}
+
+
 def main() -> int:
-    make_fonts()
-    make_shots()
-    make_favicons()
-    make_og()
+    parts = sys.argv[1:] or list(PARTS)
+    unknown = [part for part in parts if part not in PARTS]
+    if unknown:
+        print(f"Partes desconocidas: {', '.join(unknown)}. Válidas: {', '.join(PARTS)}")
+        return 1
+    for part in parts:
+        PARTS[part]()
     return 0
 
 

@@ -27,7 +27,8 @@ Los recursos derivados (fuentes WOFF2, capturas en WebP, favicons e imagen Open 
 
 ```sh
 .venv/bin/pip install -r requirements-dev.txt
-.venv/bin/python tools/make_assets.py
+.venv/bin/python tools/make_assets.py          # todo
+.venv/bin/python tools/make_assets.py shots    # solo las capturas (también fonts, favicons, og)
 ```
 
 Para publicar la insignia de Google Play cuando la app esté en la tienda, se rellena `PLAY_URL` en `build.py` y se añade la insignia oficial en `src/img/google-play-badge.svg`.
@@ -39,7 +40,8 @@ Para publicar la insignia de Google Play cuando la app esté en la tienda, se re
 | `build.py` | Generador: inicio, `/privacidad`, `/terminos`, 404, `/salud`, `robots.txt` y `sitemap.xml`. Recursos con *hash* en el nombre, en `/assets/` |
 | `src/templates/` | Plantillas HTML (`base`, `index`, `legal`, `404`) con marcadores `{{ … }}` |
 | `src/css/site.css` | Estilos con los colores como variables CSS; tema claro y oscuro con `prefers-color-scheme` |
-| `src/img/` | Capturas en WebP (240 y 432 px) e imagen Open Graph |
+| `src/capturas/` | Capturas originales del g31, en tema claro y oscuro ([revisión](docs/capturas.md)) |
+| `src/img/` | Capturas en WebP (240 y 432 px, de cada tema) e imagen Open Graph |
 | `tests/test_site.py` | Comprobaciones del sitio generado (ver abajo) |
 | `tools/` | `make_assets.py` y las guardias `check_legal_placeholders.py` y `check_brand_name.py`, adaptadas de la app |
 | `.github/workflows/ci.yml` | Build, tests, guardias y gitleaks |
@@ -66,6 +68,7 @@ Las cabeceras HTTP (CSP, sin `Set-Cookie`, 404 real) se comprueban cuando exista
 |---|---|
 | [docs/spec.md](docs/spec.md) | Especificación completa: contenido, requisitos, despliegue y criterios de aceptación |
 | [CHANGELOG.md](CHANGELOG.md) | Cambios de cada versión de la web |
+| [docs/capturas.md](docs/capturas.md) | Cómo se tomaron las capturas y su revisión (LP-11) |
 | [CLAUDE.md](CLAUDE.md) | Contexto del proyecto, decisiones, principios y valores del servidor |
 | [legal/](legal/) | Política de privacidad y términos de uso (copia exacta de la app) |
 | [brand/](brand/) | Logo de Silente (SVG, color y monocromo) |
