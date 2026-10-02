@@ -16,7 +16,12 @@ Se publica en **https://silente.nordirwork.com**, dockerizada, en el servidor do
 - ✅ Directorio preparado con los recursos: textos legales, logo, fuentes, capturas y referencias.
 - ✅ Repositorio público [DeartDev/silente-web](https://github.com/DeartDev/silente-web) creado (2026-10-02): solo *squash merge* y borrado de ramas al fusionar. gitleaks limpio y capturas revisadas antes de publicarlo.
 - ⏳ Falta proteger `main` en GitHub (gratis en repos públicos) cuando exista el CI, exigiendo sus checks.
-- ⏳ Nada implementado.
+- ✅ Generador (`build.py`), plantillas, CSS, tests del sitio y CI (rama `feat/generador`, 2026-10-02).
+- ⏳ `nginx.conf`, `Dockerfile`, `deploy/nomad/`, Lighthouse y despliegue.
+- Decisiones de implementación:
+  - `--text-muted` claro es `warmGrayInk` (`#65626A`), no `warmGray`. `warmGray` se queda en 4,3:1 sobre `--surface`.
+  - El foco es de dos tonos: anillo `--accent` más anillo interior `--text`, porque `duskLavender` se queda en 2,99:1 sobre `softLinen`.
+  - Los recursos derivados (WOFF2, WebP, favicons, OG) se generan con `tools/make_assets.py` y se versionan, para que la imagen de Docker solo necesite `markdown`.
 
 ## Primeros pasos para la sesión que empiece el proyecto
 

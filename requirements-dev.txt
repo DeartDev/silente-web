@@ -1,0 +1,4 @@
+-r requirements.txt
+brotli==1.2.0
+fonttools==4.66.1
+pillow==12.3.0
