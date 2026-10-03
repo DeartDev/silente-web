@@ -8,7 +8,8 @@ Web estática, sin JavaScript, sin cookies y sin analítica, servida con nginx e
 
 - ✅ Generador, plantillas, CSS, tests del sitio y CI (spec §11, paso 2).
 - ✅ nginx, `Dockerfile` y `deploy/nomad/`, con la auditoría del contrato en verde en simulación (salvo el DNS).
-- ⏳ Lighthouse (LP-08, LP-09) y despliegue en el servidor.
+- ✅ Lighthouse y revisión con teclado (LP-08, LP-09): [docs/accesibilidad.md](docs/accesibilidad.md). ⚪ Falta TalkBack en el g31.
+- ⏳ Despliegue en el servidor.
 
 Ver [`CLAUDE.md`](CLAUDE.md) para el contexto y los siguientes pasos.
 
@@ -17,6 +18,8 @@ Ver [`CLAUDE.md`](CLAUDE.md) para el contexto y los siguientes pasos.
 ```sh
 docker compose up -d --build      # → http://localhost:9020
 SILENTE_URL=http://localhost:9020 .venv/bin/python -m unittest tests.test_http -v
+npm ci --prefix tests/a11y && SILENTE_URL=http://localhost:9020 npm test --prefix tests/a11y
+npx --yes @lhci/cli@0.15.1 autorun     # Lighthouse con los presupuestos
 docker compose down
 ```
 
@@ -60,7 +63,9 @@ Para publicar la insignia de Google Play cuando la app esté en la tienda, se re
 | `compose.yaml` | Vista previa local en `http://localhost:9020` |
 | `deploy/nomad/` | Compose de producción, `.env.example` y [procedimiento de despliegue](deploy/nomad/README.md) |
 | `tests/test_http.py` | Comprobaciones del contenedor en marcha (necesita `SILENTE_URL`) |
-| `.github/workflows/ci.yml` | Build, tests, guardias, imagen Docker con tests HTTP y gitleaks |
+| `tests/a11y/` | Revisión con teclado en Chrome real (puppeteer-core): foco, interruptor, visor, reflow y tamaño de los objetivos |
+| `lighthouserc.json` | Presupuestos de Lighthouse del CI (spec §7.1) |
+| `.github/workflows/ci.yml` | Build, tests, guardias, imagen Docker con tests HTTP, accesibilidad con teclado, Lighthouse y gitleaks |
 
 ## Qué comprueban los tests
 
@@ -95,6 +100,7 @@ Para publicar la insignia de Google Play cuando la app esté en la tienda, se re
 | [docs/spec.md](docs/spec.md) | Especificación completa: contenido, requisitos, despliegue y criterios de aceptación |
 | [CHANGELOG.md](CHANGELOG.md) | Cambios de cada versión de la web |
 | [docs/capturas.md](docs/capturas.md) | Cómo se tomaron las capturas y su revisión (LP-11) |
+| [docs/accesibilidad.md](docs/accesibilidad.md) | Resultados de Lighthouse y de la revisión con teclado (LP-08, LP-09) |
 | [docs/cambios-app/](docs/cambios-app/README.md) | Notas de la app con lo que cambia y lo que hay que tocar en la web |
 | [CLAUDE.md](CLAUDE.md) | Contexto del proyecto, decisiones, principios y valores del servidor |
 | [legal/](legal/) | Política de privacidad y términos de uso (copia exacta de la app) |

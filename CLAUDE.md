@@ -28,7 +28,8 @@ Hecho y en `main` (PR #1–#4, CI en verde):
 
 Pendiente:
 
-- ⏳ Lighthouse y accesibilidad (LP-08, LP-09), con revisión manual con teclado y TalkBack en el g31.
+- ✅ Lighthouse y revisión con teclado (LP-08, LP-09), en el CI: [docs/accesibilidad.md](docs/accesibilidad.md). El LCP móvil de la página de inicio se queda en 2,03 s, un aviso en el CI: lo fija la latencia simulada.
+- ⚪ TalkBack en el g31: `adb reverse tcp:9020 tcp:9020` y Chrome → `http://localhost:9020`.
 - ⏳ Despliegue en el servidor (spec §8.6) y cierre de LP-06 y LP-07; después, los cambios en la app que pide «Documentación».
 - ⏳ `gitleaks/gitleaks-action@v2` usa Node 20, que está obsoleto: actualizarlo cuando haya versión nueva.
 - ⚪ Las fuentes de las capturas miden 540 px. Para una vista ampliada nítida en pantallas de alta densidad, repetirlas a 1080 px.
@@ -44,7 +45,10 @@ Pendiente:
   - En producción no hay `ports:` (regla 1).
 - **Tests:**
   - `python3 -m unittest discover -s tests -t .` para el sitio;
-  - `SILENTE_URL=http://localhost:9020 python3 -m unittest tests.test_http` para el contenedor.
+  - `SILENTE_URL=http://localhost:9020 python3 -m unittest tests.test_http` para el contenedor;
+  - `npm test --prefix tests/a11y` para el teclado en Chrome;
+  - `npx @lhci/cli@0.15.1 autorun` para Lighthouse.
+- **Fuentes:** Lora va en instancias estáticas (600 y cursiva 400); no hay Lora 400 recta. Usarla añadiría una descarga y empeoraría el LCP.
 - **Recursos derivados** (WOFF2, WebP, favicons, OG): se generan con `tools/make_assets.py <parte>` y se versionan, para que la imagen de Docker solo necesite `markdown`. Las fuentes y los PNG no son reproducibles byte a byte, así que solo se regenera la parte que cambia.
 - **Decisiones de implementación:**
   - `--text-muted` claro es `warmGrayInk` (`#65626A`), no `warmGray`. `warmGray` se queda en 4,3:1 sobre `--surface`.

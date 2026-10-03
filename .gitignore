@@ -17,3 +17,9 @@ __pycache__/
 !.vscode/extensions.json
 *.swp
 .DS_Store
+
+# --- Lighthouse CI ---
+/.lighthouseci/
+
+# --- Node (tests/a11y) ---
+node_modules/

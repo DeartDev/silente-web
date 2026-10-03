@@ -14,7 +14,7 @@ import urllib.request
 
 BASE = os.environ.get("SILENTE_URL", "").rstrip("/")
 CSP = (
-    "default-src 'none'; img-src 'self'; style-src 'self'; font-src 'self'; "
+    "default-src 'none'; img-src 'self'; style-src 'self'; font-src 'self'; connect-src 'self'; "
     "base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
 )
 

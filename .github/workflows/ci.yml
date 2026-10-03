@@ -53,6 +53,25 @@ jobs:
         env:
           SILENTE_URL: http://127.0.0.1:9020
         run: python3 -m unittest tests.test_http -v
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Accesibilidad con teclado en Chrome (LP-08)
+        env:
+          SILENTE_URL: http://127.0.0.1:9020
+          CHROME_PATH: /usr/bin/google-chrome
+        run: |
+          npm ci --prefix tests/a11y
+          npm test --prefix tests/a11y
+      - name: Lighthouse (LP-08, LP-09)
+        run: npx --yes @lhci/cli@0.15.1 autorun
+      - name: Informes de Lighthouse
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse
+          path: .lighthouseci/
+          if-no-files-found: ignore
       - name: Logs del contenedor
         if: always()
         run: docker logs silente-web-ci

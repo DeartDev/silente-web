@@ -18,6 +18,16 @@ Cambios visibles de la web de Silente. Formato basado en [Keep a Changelog](http
   - pie en dos columnas.
 - Aviso en el CI cuando hay notas de la app pendientes de aplicar en la web.
 
+- Lighthouse y revisión con teclado en el CI, con los presupuestos del spec.
+
+### Cambiado
+
+- Página de inicio más rápida en móvil:
+  - LCP de 2,4 a 2,03 s; primera pintura de 1,5 a 0,75 s; CLS 0;
+  - peso de 264 a 182 KB, con gzip, CSS minificado, Lora en pesos fijos y fuentes precargadas.
+- Los tres principios de «Pensado para leer» van en cursiva.
+- El visor de capturas se oculta si el foco del teclado sale de él, para que nada enfocado quede tapado.
+
 ### Corregido
 
 - El texto del Lector decía que el scroll es una forma de pasar página. Ahora distingue cómo se lee (por páginas o en scroll) de cómo se pasa página (como un libro, deslizando o sin animación), como hace la app.

@@ -2,10 +2,13 @@
    has no 'unsafe-inline'. Colours only through the tokens below. No
    JavaScript: the theme switch and the screenshot viewer are CSS only. */
 
+/* Lora in static instances (smaller than the variable font): 600 for titles,
+   preloaded, and the italic 400 for the motto and the principles. There is
+   no upright 400: any use would download one more font. */
 @font-face {
   font-family: "Lora";
-  src: url("{{ asset:fonts/lora.woff2 }}") format("woff2");
-  font-weight: 400 700;
+  src: url("{{ asset:fonts/lora-600.woff2 }}") format("woff2");
+  font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
@@ -13,7 +16,7 @@
 @font-face {
   font-family: "Lora";
   src: url("{{ asset:fonts/lora-italic.woff2 }}") format("woff2");
-  font-weight: 400 700;
+  font-weight: 400;
   font-style: italic;
   font-display: swap;
 }
@@ -449,6 +452,19 @@ main > .alt {
   animation: appear 0.2s ease-out;
 }
 
+/* Without JavaScript the focus cannot be trapped in the view. If the focus
+   leaves it (Tab past «Cerrar»), the view hides itself, so the focused
+   element is never covered by it (WCAG 2.4.11). Its own phone link, which
+   keeps the focus for a moment while the view opens, does not count. */
+:root:has(:focus:not(.lightbox, .lightbox *)) .lightbox:target:not(.phone:focus + .lightbox) {
+  display: none;
+}
+
+.lightbox:focus {
+  outline: none;
+  box-shadow: none;
+}
+
 .lightbox-backdrop {
   position: absolute;
   inset: 0;
@@ -551,6 +567,7 @@ main > .alt {
   padding: 0;
   list-style: none;
   font-family: var(--font-title);
+  font-style: italic;
   font-size: clamp(1.375rem, 3.5vw, 2rem);
   line-height: 1.3;
 }
@@ -641,8 +658,8 @@ main > .alt {
 .faq summary::after {
   content: "+";
   color: var(--accent);
-  font-family: var(--font-title);
   font-size: 1.5rem;
+  font-weight: 400;
   line-height: 1;
 }
 
