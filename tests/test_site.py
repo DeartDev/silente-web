@@ -145,11 +145,13 @@ class SiteTest(unittest.TestCase):
     # LP-03
 
     def test_no_javascript_cookies_forms_or_inline_styles(self):
-        forbidden_tags = {"script", "form", "iframe", "object", "embed", "style", "input"}
+        forbidden_tags = {"script", "form", "iframe", "object", "embed", "style", "textarea", "select", "button"}
         for name, page in self.pages.items():
             for tag, attrs in page.tags:
                 with self.subTest(page=name, tag=tag):
                     self.assertNotIn(tag, forbidden_tags)
+                    if tag == "input":  # only the CSS theme switch, outside any form
+                        self.assertEqual((attrs.get("type"), attrs.get("name")), ("radio", "tema"))
                     self.assertNotIn("style", attrs)
                     self.assertFalse([a for a in attrs if a.startswith("on")])
                     self.assertFalse(attrs.get("href", "").lower().startswith("javascript:"))
@@ -241,17 +243,49 @@ class SiteTest(unittest.TestCase):
         for svg in self.pages["index.html"].find("svg"):
             self.assertEqual(svg.get("aria-hidden"), "true")
 
-    def test_screenshots_have_a_dark_variant(self):
+    def test_screenshots_have_a_variant_per_theme(self):
         page = self.pages["index.html"]
+        # Two pictures per screenshot: the phone and its full-size view.
+        pictures = [p for p in page.find("picture") if p.get("class") == "shot-auto"]
+        self.assertEqual(len(pictures), 12)
         sources = page.find("source")
-        self.assertEqual(len(sources), len(page.find("img")))
+        self.assertEqual(len(sources), len(pictures))
         for source in sources:
             with self.subTest(srcset=source["srcset"][:40]):
                 self.assertEqual(source["media"], "(prefers-color-scheme: dark)")
                 self.assertIn("-oscuro-", source["srcset"])
                 self.assertTrue(source.get("width") and source.get("height"))
-        for image in page.find("img"):
-            self.assertIn("-claro-", image["srcset"])
+        # Each picture comes with the two images the theme switch can show.
+        for theme in ("claro", "oscuro"):
+            images = [i for i in page.find("img") if i.get("class") == f"shot-{theme}"]
+            with self.subTest(theme=theme):
+                self.assertEqual(len(images), len(pictures))
+                for image in images:
+                    self.assertIn(f"-{theme}-", image["srcset"])
+                    self.assertEqual(image.get("loading"), "lazy")
+
+    def test_theme_switch_on_every_page(self):
+        for name, page in self.pages.items():
+            radios = [i for i in page.find("input") if i.get("name") == "tema"]
+            with self.subTest(page=name):
+                self.assertEqual([r["value"] for r in radios], ["sistema", "claro", "oscuro"])
+                self.assertEqual([r["value"] for r in radios if "checked" in r], ["sistema"])
+                labels = {l["for"] for l in page.find("label")}
+                self.assertEqual(labels, {r["id"] for r in radios})
+                self.assertEqual(len(page.find("legend")), 1)
+
+    def test_every_screenshot_opens_a_full_size_view(self):
+        page = self.pages["index.html"]
+        phones = [a for a in page.find("a") if a.get("class") == "phone"]
+        self.assertEqual(len(phones), 6)
+        for phone in phones:
+            name = phone["id"].removeprefix("captura-")
+            with self.subTest(shot=name):
+                self.assertEqual(phone["href"], f"#ver-{name}")
+                self.assertIn(f"ver-{name}", page.ids)
+                back = [a for a in page.find("a") if a.get("href") == f"#captura-{name}"]
+                closes = [a for a in back if a.get("class") == "lightbox-close"]
+                self.assertEqual(len(closes), 1)
 
     def test_srcset_files_exist(self):
         for name, page in self.pages.items():
@@ -292,6 +326,11 @@ class SiteTest(unittest.TestCase):
                         self.assertTrue((self.dist / target).is_file())
                         if fragment:
                             self.assertIn(fragment, self.pages[target].ids)
+        for name, page in self.pages.items():
+            for attrs in page.find("a"):
+                if attrs.get("href", "").startswith("#"):
+                    with self.subTest(page=name, href=attrs["href"]):
+                        self.assertIn(attrs["href"][1:], page.ids)
 
     # Spec §7.1: budgets
 
@@ -301,7 +340,9 @@ class SiteTest(unittest.TestCase):
         resources = set(re.findall(r'(?:src|href)="(/assets/[^"]+)"', source))
         resources |= set(re.findall(r"(/assets/[^\s,\"]+) \d+w", source))  # srcset
         resources |= set(re.findall(r'url\("(/assets/[^"]+)"', css.read_text()))
-        resources = {r for r in resources if "/og." not in r}  # only for link previews
+        # Not loaded with the page: the link preview image and the full-size
+        # view (loaded when a screenshot is opened).
+        resources = {r for r in resources if "/og." not in r and "-540." not in r}
         # A browser loads the screenshots of one theme only. Per theme, count
         # everything, as if it downloaded both sizes of every image.
         for theme, other in (("claro", "oscuro"), ("oscuro", "claro")):
@@ -310,7 +351,8 @@ class SiteTest(unittest.TestCase):
             with self.subTest(theme=theme, kb=total // 1024):
                 self.assertLessEqual(total, 500 * 1024)
         # Requests: the page plus one size per image and each other resource.
-        images = len(self.pages["index.html"].find("img"))
+        # One image per phone (the full-size views load only when opened).
+        images = len([a for a in self.pages["index.html"].find("a") if a.get("class") == "phone"])
         others = {r for r in resources if not r.endswith(".webp")}
         self.assertLessEqual(1 + images + len(others), 15)
 
@@ -319,8 +361,10 @@ class ContrastTest(unittest.TestCase):
     """WCAG 2.2 AA with the CSS tokens of both themes (spec §7.3)."""
 
     @staticmethod
-    def tokens(block: str) -> dict[str, str]:
-        return dict(re.findall(r"--([\w-]+):\s*(#[0-9A-Fa-f]{6})", block))
+    def tokens(css: str) -> dict[str, tuple[str, str]]:
+        """--name: light-dark(#light, #dark) → {name: (light, dark)}."""
+        pattern = r"--([\w-]+):\s*light-dark\((#[0-9A-Fa-f]{6}),\s*(#[0-9A-Fa-f]{6})\)"
+        return {name: (light, dark) for name, light, dark in re.findall(pattern, css)}
 
     @staticmethod
     def ratio(a: str, b: str) -> float:
@@ -338,13 +382,22 @@ class ContrastTest(unittest.TestCase):
         self.assertIn("outline: 3px solid var(--accent)", rule)
         self.assertIn("box-shadow: 0 0 0 2px var(--text)", rule)
 
+    def test_theme_switch_forces_the_colour_scheme(self):
+        css = (ROOT / "src/css/site.css").read_text(encoding="utf-8")
+        self.assertIn(":root:has(#tema-claro:checked) {\n  color-scheme: light;", css)
+        self.assertIn(":root:has(#tema-oscuro:checked) {\n  color-scheme: dark;", css)
+        self.assertIn(":root:has(#tema-claro:checked) .shot-claro", css)
+        self.assertIn(":root:has(#tema-oscuro:checked) .shot-oscuro", css)
+        # Every colour token has a light and a dark value.
+        root = re.search(r"\n:root \{(.+?)\}", css, re.S).group(1)
+        colours = re.findall(r"--([\w-]+):\s*(?:#|rgb|light-dark)", root)
+        self.assertEqual(set(colours), set(re.findall(r"--([\w-]+):\s*light-dark", root)))
+
     def test_text_and_focus_contrast(self):
         css = (ROOT / "src/css/site.css").read_text(encoding="utf-8")
-        light_block = re.search(r":root \{(.+?)\}", css, re.S).group(1)
-        dark_block = re.search(r"prefers-color-scheme: dark\)\s*\{\s*:root \{(.+?)\}", css, re.S).group(1)
-        light = self.tokens(light_block)
-        dark = {**light, **self.tokens(dark_block)}
-        for theme, t in (("claro", light), ("oscuro", dark)):
+        tokens = self.tokens(re.search(r"\n:root \{(.+?)\}", css, re.S).group(1))
+        for index, theme in enumerate(("claro", "oscuro")):
+            t = {name: pair[index] for name, pair in tokens.items()}
             for background in ("bg", "surface"):
                 for text in ("text", "text-muted", "gold"):
                     with self.subTest(theme=theme, pair=f"{text} sobre {background}"):

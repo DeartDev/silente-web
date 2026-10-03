@@ -65,6 +65,9 @@ Una web pública, pequeña y estática que:
 | L-04 | **Capturas de pantalla** | Las del manual (`docs/manual-usuario/capturas/`), revisadas una a una | Solo pueden mostrar libros de dominio público o el libro de Silente, y ninguna reflexión personal (§6.3) |
 | L-05 | **Ruta de los textos legales** | `https://silente.nordirwork.com/privacidad` y `/terminos` | La guía de Play proponía `nordirwork.com/silente/privacidad`, pero el ápice pertenece a otro proyecto. Si se acepta, se actualiza la guía |
 | L-06 | **Mención de Silente+** | Sección breve, «Próximamente», sin precios | Las decisiones M-01…M-04 del [plan de monetización](referencias/monetizacion.md) siguen abiertas: no se anuncia nada que no esté decidido |
+| L-07 | **Interruptor de tema** | ✅ Selector «Sistema · Claro · Oscuro» en la cabecera, **solo con CSS** (`:has()` sobre tres botones de opción), sin JavaScript (usuario, 2026-10-02) | Cambia colores y capturas al momento y mantiene la CSP `script-src 'none'`. Sin JS no se recuerda: al cambiar de página vuelve a «Sistema». Se descartó un interruptor con JS propio porque obligaba a `script-src 'self'` y a guardar la elección en `localStorage` |
+| L-08 | **Capturas ampliables** | ✅ Cada captura abre una vista grande al pulsarla, con `:target` y sin JavaScript (usuario, 2026-10-02) | Se cierra con «Cerrar», pulsando fuera o con «atrás» del navegador. La vista grande solo se descarga al abrirla |
+| L-09 | **Sincronía con la app** | ✅ Las notas de `docs/cambios-app/` (§12) dicen qué cambia en la app y qué hay que tocar en la web (usuario, 2026-10-02) | La finalidad de la web es la transparencia: decir y mostrar solo lo que la app hace |
 
 ### 3.2 L-03: carpeta `web/` o proyecto aparte
 
@@ -99,7 +102,7 @@ El contrato de nomadservernw marca la diferencia: en producción todo se constru
 | Servidor web | **`nginxinc/nginx-unprivileged:<versión fija>-alpine`**, puerto 8080 | `nginx` estándar: corre como root. Caddy: duplica lo que ya hace Traefik |
 | Base de datos | **Ninguna** → no hace falta gancho de volcado (regla 9) | — |
 | Estilos | CSS propio, sin framework, con los tokens de `lib/core/theme/` | Tailwind por CDN: viola «sin recursos de terceros» |
-| JavaScript | **Ninguno.** El cambio de tema lo hace `prefers-color-scheme` | Un interruptor de tema: requiere JS y `localStorage`; no compensa |
+| JavaScript | **Ninguno.** El tema sigue a `prefers-color-scheme` y el interruptor de la cabecera es solo CSS (L-07) | Un interruptor con JS y `localStorage`: obliga a relajar la CSP; no compensa |
 
 ## 4. Principios de la web
 
@@ -120,6 +123,7 @@ Los textos están **validados por el usuario** (2026-10-02) como base; se pulen 
 
 - Logo (`brand/silente-mark.svg`) + «Silente» en Lora.
 - Navegación mínima: «Qué es» · «Privacidad» · «Preguntas». En móvil, enlaces en línea; sin menú hamburguesa (no hay JS).
+- Interruptor de tema «Sistema · Claro · Oscuro» (L-07), en todas las páginas.
 
 ### 5.2 Hero
 
@@ -136,7 +140,7 @@ Los textos están **validados por el usuario** (2026-10-02) como base; se pulen 
 | Bloque | Texto propuesto | Captura |
 |---|---|---|
 | **Biblioteca** | «Añade tus libros EPUB y encuéntralos siempre donde los dejaste. "Continuar leyendo" te lleva a la página exacta.» | `biblioteca-inicio.jpg` |
-| **Lector** | «Una página limpia que desaparece mientras lees. Elige fuente, tamaño, márgenes y cómo pasar página: como un libro, deslizando o en scroll.» | `lector-ajustes-oscuro.jpg` |
+| **Lector** | «Una página limpia que desaparece mientras lees. Elige fuente, tamaño y márgenes, si lees por páginas o en scroll, y cómo pasar página: como un libro, deslizando o sin animación.» (corregido el 2026-10-02: el scroll es una forma de leer, no de pasar página; ver la nota de la 0.1.0 en `docs/cambios-app/`) | `lector-ajustes` |
 | **Diario** | «Escribe una reflexión desde cualquier página. Tu Diario guarda el libro y el capítulo en que la escribiste.» | `diario-editor.jpg` |
 | **Tu copia** | «Exporta una copia de tus libros y tu diario, cifrada con tu contraseña, y llévatela a otro teléfono.» | `ajustes-exportar.jpg` |
 
@@ -418,3 +422,15 @@ Antes de hacerlo público, gitleaks en todo su historial y revisión de que solo
 5. Lighthouse y revisión de accesibilidad (LP-08, LP-09).
 6. Documentación tras los tests en verde. En `silente-web`: su README y la guía de despliegue. En la app: ficha en `docs/funcionalidades/`, la [guía de Play](referencias/publicacion-play-store.md) (paso 4), el ROADMAP (§8.7) y `CHANGELOG.md`.
 7. Despliegue en el servidor (§8.6) y cierre de LP-06/LP-07.
+
+## 12. Sincronía con la app (L-09)
+
+La web existe para decir y mostrar **lo que la app hace, y nada más**. Para que no se desvíen:
+
+1. Cada avance de la app que cambie lo que vive la persona lectora llega como una **nota** en [`docs/cambios-app/`](cambios-app/README.md), con la plantilla de esa carpeta: disponibilidad, impacto en la web, qué no anunciar y evidencia.
+2. Al trabajar en la web se aplican las notas **⏳ pendientes**: textos del §5, preguntas frecuentes y capturas (en los dos temas, con la revisión de [`docs/capturas.md`](capturas.md)). Solo se anuncia lo que está **disponible en la versión publicada**.
+3. La nota se marca **✅ aplicada en la web** (con el PR) o **— sin impacto**.
+4. `tools/check_app_notes.py` lo vigila:
+   - en el CI avisa de las notas pendientes y falla si una nota no tiene estado o no está en el índice;
+   - con `--strict`, que es el paso previo a desplegar, también falla si queda alguna pendiente.
+

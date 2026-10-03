@@ -15,7 +15,7 @@ Needs ImageMagick 7 with librsvg (`magick`) for the favicons.
 
 Outputs:
 - fonts/*.woff2: Lora and Nunito Sans (roman and italic), Latin subset;
-- src/img/<shot>-<theme>-{240,432}.webp: the screenshots of spec §5, in the
+- src/img/<shot>-<theme>-{240,432,540}.webp: the screenshots of spec §5, in the
   light (claro) and dark (oscuro) themes, from src/capturas/<theme>/*.jpg;
 - brand/favicon-32.png, brand/apple-touch-icon.png, brand/favicon.ico;
 - src/img/og.png: Open Graph image, 1200 × 630.
@@ -57,7 +57,7 @@ SHOT_NAMES = [
     "ajustes-exportar",
     "libro-de-silente-portada",
 ]
-SHOT_WIDTHS = [240, 432]
+SHOT_WIDTHS = [240, 432, 540]  # 540: the full-size view (sources are 540 wide)
 # Only the weight axis stays variable, limited to the weights the CSS uses;
 # the rest is pinned to its default (Nunito Sans: wdth, opsz, YTLC).
 WEIGHTS = (400, 700)

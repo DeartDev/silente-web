@@ -8,6 +8,19 @@ Cambios visibles de la web de Silente. Formato basado en [Keep a Changelog](http
 
 - Imagen Docker (nginx sin privilegios) con las cabeceras de seguridad de la web, caché larga para los recursos, redirecciones a las URL canónicas y logs sin la IP completa.
 - Vista previa local en `http://localhost:9020` y compose de producción para nomadservernw.
+- Interruptor de tema «Sistema · Claro · Oscuro» en la cabecera, sin JavaScript: cambia los colores y las capturas.
+- Las capturas se amplían al pulsarlas.
+- Diseño renovado:
+  - las líneas del logo que se apagan en «…» abren el inicio y los principios;
+  - halo cálido detrás del teléfono;
+  - la privacidad, en una lista en dos columnas;
+  - preguntas frecuentes junto a su título;
+  - pie en dos columnas.
+- Aviso en el CI cuando hay notas de la app pendientes de aplicar en la web.
+
+### Corregido
+
+- El texto del Lector decía que el scroll es una forma de pasar página. Ahora distingue cómo se lee (por páginas o en scroll) de cómo se pasa página (como un libro, deslizando o sin animación), como hace la app.
 
 ## [0.1.0] - 2026-10-02
 

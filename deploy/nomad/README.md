@@ -44,6 +44,14 @@ No hay gancho de volcado: la web no tiene base de datos (regla 9).
 
 ## Despliegue (spec §8.6)
 
+En el repositorio, antes de desplegar, la web tiene que decir lo mismo que la app (spec §12):
+
+```sh
+python3 tools/check_app_notes.py --strict    # ninguna nota de la app pendiente
+```
+
+En el servidor:
+
 ```sh
 cd ~/nomad_server
 ./scripts/revisar_proyecto.sh silente           # en verde

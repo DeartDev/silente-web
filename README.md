@@ -54,7 +54,7 @@ Para publicar la insignia de Google Play cuando la app esté en la tienda, se re
 | `src/capturas/` | Capturas originales del g31, en tema claro y oscuro ([revisión](docs/capturas.md)) |
 | `src/img/` | Capturas en WebP (240 y 432 px, de cada tema) e imagen Open Graph |
 | `tests/test_site.py` | Comprobaciones del sitio generado (ver abajo) |
-| `tools/` | `make_assets.py` y las guardias `check_legal_placeholders.py` y `check_brand_name.py`, adaptadas de la app |
+| `tools/` | `make_assets.py`; las guardias `check_legal_placeholders.py` y `check_brand_name.py`, adaptadas de la app; y `check_app_notes.py` ([sincronía con la app](docs/spec.md#12-sincronía-con-la-app-l-09)) |
 | `nginx/` | `nginx.conf` y las cabeceras de seguridad que añade nginx (CSP, COOP, CORP) |
 | `Dockerfile` | Multi-etapa: build con `python:3.14.8-alpine3.24` → `nginxinc/nginx-unprivileged:1.30.5-alpine3.24`, puerto 8080 |
 | `compose.yaml` | Vista previa local en `http://localhost:9020` |
@@ -75,6 +75,9 @@ Para publicar la insignia de Google Play cuando la app esté en la tienda, se re
 | §6.4 | `lang`, título, descripción y URL canónica en cada página; `robots.txt`, `sitemap.xml` y `/salud` |
 | §7.1 | Peso de la página de inicio (≤ 500 KB) y número de peticiones (≤ 15) |
 | §7.3 | Encabezados en orden, *landmarks*, enlace «Saltar al contenido», `alt` y tamaño en las imágenes, y contraste AA de los colores en los dos temas |
+| L-07 | Interruptor de tema en cada página, con «Sistema» marcado; cada captura tiene variante clara y oscura, y las forzadas se cargan en diferido |
+| L-08 | Cada captura abre su vista ampliada y tiene un enlace «Cerrar» que vuelve a ella; todos los enlaces internos (`#…`) existen |
+| §12 | `tests/test_app_notes.py`: estados de las notas e índice |
 
 `tests/test_http.py` comprueba el servidor de verdad (también en el CI):
 
@@ -92,6 +95,7 @@ Para publicar la insignia de Google Play cuando la app esté en la tienda, se re
 | [docs/spec.md](docs/spec.md) | Especificación completa: contenido, requisitos, despliegue y criterios de aceptación |
 | [CHANGELOG.md](CHANGELOG.md) | Cambios de cada versión de la web |
 | [docs/capturas.md](docs/capturas.md) | Cómo se tomaron las capturas y su revisión (LP-11) |
+| [docs/cambios-app/](docs/cambios-app/README.md) | Notas de la app con lo que cambia y lo que hay que tocar en la web |
 | [CLAUDE.md](CLAUDE.md) | Contexto del proyecto, decisiones, principios y valores del servidor |
 | [legal/](legal/) | Política de privacidad y términos de uso (copia exacta de la app) |
 | [brand/](brand/) | Logo de Silente (SVG, color y monocromo) |

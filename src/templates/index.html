@@ -1,13 +1,14 @@
 <section class="hero" aria-labelledby="titulo">
   <div class="wrap hero-grid">
-    <div>
+    <div class="hero-text">
+      <svg class="fade-lines" aria-hidden="true" focusable="false" viewBox="0 0 92 40"><rect x="0" y="32" width="92" height="7" rx="3.5"/><rect class="l2" x="0" y="18" width="60" height="7" rx="3.5"/><circle class="d1" cx="4" cy="6" r="3.8"/><circle class="d2" cx="16" cy="6" r="3.8"/><circle class="d3" cx="28" cy="6" r="3.8"/></svg>
       <h1 id="titulo">Silente</h1>
       <p class="tagline">Tu espacio de lectura</p>
       <p class="lead">Un lector de libros EPUB tranquilo, con un diario privado para lo que te hacen pensar. Sin cuentas, sin anuncios y sin internet: tus libros y tu diario se quedan en tu teléfono.</p>
       {{ play }}
     </div>
-    <div class="phone">
-      {{ shot:lector-pagina|El comienzo del capítulo primero de Don Quijote abierto en el Lector de Silente|eager }}
+    <div class="hero-shot">
+    {{ shot:lector-pagina|El comienzo del capítulo primero de Don Quijote abierto en el Lector de Silente|eager }}
     </div>
   </div>
 </section>
@@ -15,62 +16,56 @@
 <section id="que-es" aria-labelledby="que-es-titulo">
   <div class="wrap">
     <h2 id="que-es-titulo">Qué es Silente</h2>
-    <p class="section-intro">Un lector para tus libros EPUB y un diario para lo que piensas mientras lees. Todo en un mismo sitio, y todo en tu teléfono.</p>
+    <p class="section-intro">Un lector para tus libros EPUB y un diario para lo que piensas mientras lees. Todo en un mismo sitio, y todo en tu teléfono. Pulsa una captura para verla en grande.</p>
     <ul class="features">
       <li class="feature">
         <div>
           <h3>Biblioteca</h3>
           <p>Añade tus libros EPUB y encuéntralos siempre donde los dejaste. «Continuar leyendo» te lleva a la página exacta.</p>
         </div>
-        <div class="phone">
-          {{ shot:biblioteca-inicio|La Biblioteca de Silente, con Don Quijote en «Continuar leyendo» y cuatro libros debajo }}
-        </div>
+        {{ shot:biblioteca-inicio|La Biblioteca de Silente, con Don Quijote en «Continuar leyendo» y cuatro libros debajo }}
       </li>
       <li class="feature">
         <div>
           <h3>Lector</h3>
-          <p>Una página limpia que desaparece mientras lees. Elige fuente, tamaño, márgenes y cómo pasar página: como un libro, deslizando o en scroll.</p>
+          <p>Una página limpia que desaparece mientras lees. Elige fuente, tamaño y márgenes, si lees por páginas o en scroll, y cómo pasar página: como un libro, deslizando o sin animación.</p>
         </div>
-        <div class="phone">
-          {{ shot:lector-ajustes|Los ajustes de lectura abiertos sobre una página de Don Quijote: desplazamiento, cómo pasar página, tamaño de letra, fuente, interlineado, alineación y márgenes }}
-        </div>
+        {{ shot:lector-ajustes|Los ajustes de lectura abiertos sobre una página de Don Quijote: desplazamiento, cómo pasar página, tamaño de letra, fuente, interlineado, alineación y márgenes }}
       </li>
       <li class="feature">
         <div>
           <h3>Diario</h3>
           <p>Escribe una reflexión desde cualquier página. Tu Diario guarda el libro y el capítulo en que la escribiste.</p>
         </div>
-        <div class="phone">
-          {{ shot:diario-editor|Una reflexión nueva sobre Don Quijote, escrita en el capítulo primero }}
-        </div>
+        {{ shot:diario-editor|Una reflexión nueva sobre Don Quijote, escrita en el capítulo primero }}
       </li>
       <li class="feature">
         <div>
           <h3>Tu copia</h3>
           <p>Exporta una copia de tus libros y tu diario, cifrada con tu contraseña, y llévatela a otro teléfono.</p>
         </div>
-        <div class="phone">
-          {{ shot:ajustes-exportar|El diálogo «Exportar mis datos», que pide una contraseña para cifrar la copia }}
-        </div>
+        {{ shot:ajustes-exportar|El diálogo «Exportar mis datos», que pide una contraseña para cifrar la copia }}
       </li>
     </ul>
   </div>
 </section>
 
 <section id="privacidad" class="alt" aria-labelledby="privacidad-titulo">
-  <div class="wrap">
-    <h2 id="privacidad-titulo">Lo que lees es tuyo</h2>
+  <div class="wrap privacy-grid">
+    <div>
+      <h2 id="privacidad-titulo">Lo que lees es tuyo</h2>
+      <p><a href="/privacidad">Lee la política de privacidad completa <span aria-hidden="true">→</span></a></p>
+    </div>
     <ul class="claims">
       <li><strong>Sin internet.</strong> Silente no tiene el permiso de Android para conectarse: no puede enviar nada.</li>
       <li><strong>Sin cuenta.</strong> No hace falta registrarse para usar nada.</li>
       <li><strong>Sin anuncios ni seguimiento.</strong> Ni analítica, ni publicidad, ni herramientas de terceros.</li>
       <li><strong>Tu diario, protegido.</strong> Con «Proteger mi diario» nadie puede hacer capturas de tus reflexiones.</li>
     </ul>
-    <p><a href="/privacidad">Lee la política de privacidad completa <span aria-hidden="true">→</span></a></p>
   </div>
 </section>
 
-<section aria-labelledby="pensado-titulo">
+<section class="quiet" aria-labelledby="pensado-titulo">
   <div class="wrap">
     <h2 id="pensado-titulo">Pensado para leer</h2>
     <ul class="principles">
@@ -87,14 +82,12 @@
       <h2 id="libro-titulo">El libro de Silente</h2>
       <p>Silente trae su propio libro: una guía corta que se lee con el mismo Lector y te enseña a usarlo mientras lo recorres.</p>
     </div>
-    <div class="phone">
-      {{ shot:libro-de-silente-portada|La portada de «El libro de Silente», con el logo y el lema «Tu espacio de lectura» }}
-    </div>
+    {{ shot:libro-de-silente-portada|La portada de «El libro de Silente», con el logo y el lema «Tu espacio de lectura» }}
   </div>
 </section>
 
 <section aria-labelledby="plus-titulo">
-  <div class="wrap">
+  <div class="wrap plus">
     <h2 id="plus-titulo">Silente+</h2>
     <p class="soon">Próximamente</p>
     <p class="section-intro">Sincronización entre dispositivos y más opciones para tu Diario, tu Biblioteca y la lectura. Todo lo que Silente hace hoy seguirá siendo gratis.</p>
@@ -102,7 +95,7 @@
 </section>
 
 <section id="preguntas" class="alt" aria-labelledby="preguntas-titulo">
-  <div class="wrap">
+  <div class="wrap faq-grid">
     <h2 id="preguntas-titulo">Preguntas frecuentes</h2>
     <div class="faq">
       <details>
