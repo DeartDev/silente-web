@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  sitio:
+    name: Build y tests del sitio
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - name: Dependencias
+        run: pip install -r requirements.txt
+      - name: Textos legales sin marcadores y con fecha
+        run: python3 tools/check_legal_placeholders.py
+      - name: Build
+        run: python3 build.py
+      - name: Tests (LP-01…LP-04, LP-10, LP-12)
+        run: python3 -m unittest discover -s tests -t . -v
+      - name: Guardia del nombre antiguo (LP-10)
+        run: python3 tools/check_brand_name.py dist
+
+  gitleaks:
+    name: Secretos (gitleaks)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
