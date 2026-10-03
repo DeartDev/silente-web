@@ -6,44 +6,51 @@ Se publica en **https://silente.nordirwork.com**, dockerizada, en el servidor do
 
 ## Fuente de verdad
 
-- **`docs/spec.md`** es la especificación completa y validada por el usuario (2026-10-02): objetivo, alcance, decisiones L-01…L-06, contenido y textos de cada sección, requisitos, despliegue y criterios de aceptación LP-01…LP-12. **Léela entera antes de empezar.**
+- **`docs/spec.md`** es la especificación completa y validada por el usuario (2026-10-02): objetivo, alcance, decisiones L-01…L-09, contenido y textos de cada sección, requisitos, despliegue y criterios de aceptación LP-01…LP-12. **Léela entera antes de empezar.**
 - `docs/referencias/` son **copias de solo lectura** de documentos de la app y de `nomad_server`, para trabajar sin depender de otros repositorios. No se editan: si algo cambia, se cambia en su origen y se vuelve a copiar.
 - Todo lo que no esté en el spec está **fuera de alcance** hasta que se añada explícitamente.
 
-## Estado
+## Estado (2026-10-02)
 
-- ✅ Spec validado (decisiones L-01…L-06 cerradas; L-07…L-09 añadidas el 2026-10-02: interruptor de tema, capturas ampliables y sincronía con la app).
-- ✅ Directorio preparado con los recursos: textos legales, logo, fuentes, capturas y referencias.
-- ✅ Repositorio público [DeartDev/silente-web](https://github.com/DeartDev/silente-web) creado (2026-10-02): solo *squash merge* y borrado de ramas al fusionar. gitleaks limpio y capturas revisadas antes de publicarlo.
-- ⏳ Falta proteger `main` en GitHub (gratis en repos públicos) cuando exista el CI, exigiendo sus checks.
-- ✅ Generador (`build.py`), plantillas, CSS, tests del sitio y CI (rama `feat/generador`, 2026-10-02).
-- ✅ nginx (`nginx/`), `Dockerfile`, `deploy/nomad/` y tests HTTP (rama `feat/docker`). `revisar_proyecto.sh` en verde en simulación, salvo el DNS.
-- ✅ Interruptor de tema solo con CSS (L-07), capturas ampliables con `:target` (L-08), diseño renovado y guardia de las notas de la app (L-09, spec §12). Rama `feat/diseno`.
-- ⏳ Lighthouse (LP-08, LP-09) y despliegue en el servidor.
-- **Transparencia con la app (finalidad de la web):** la web dice y muestra solo lo que la app hace. Los cambios de la app llegan como notas en `docs/cambios-app/` (PR desde la app). Al trabajar en la web, se aplican las notas ⏳ pendientes:
-  - textos;
-  - preguntas frecuentes;
-  - capturas en los dos temas.
+Hecho y en `main` (PR #1–#4, CI en verde):
 
-  Después, la nota se marca. `tools/check_app_notes.py --strict` tiene que pasar antes de desplegar.
-- **Vista previa local:** `docker compose up -d --build` → `http://localhost:9020`. Los proyectos personales usan puertos 9000+ en local. `nordirwork` ya ocupa el 9010 y el 9011; silente-web usa el 9020, solo en `127.0.0.1`. En producción no hay `ports:` (regla 1).
-- Decisiones de implementación:
+- ✅ **Spec validado:** decisiones L-01…L-06; L-07…L-09 añadidas el 2026-10-02 (interruptor de tema, capturas ampliables y sincronía con la app).
+- ✅ **Repositorio** público [DeartDev/silente-web](https://github.com/DeartDev/silente-web): solo *squash merge*, ramas borradas al fusionar. `main` protegida (ver Git).
+- ✅ **Sitio:** generador (`build.py`), plantillas, CSS, tests del sitio (LP-01…LP-04, LP-10, LP-12) y CI (#1).
+- ✅ **Capturas** nuevas del g31, en claro y oscuro (LP-11, [docs/capturas.md](docs/capturas.md)). Las de `docs/referencias/capturas/` ya no se usan.
+- ✅ **Notas de la app** en `docs/cambios-app/` (#2).
+- ✅ **Docker:** nginx (`nginx/`), `Dockerfile`, `deploy/nomad/` y tests HTTP (#3). `revisar_proyecto.sh` en verde en simulación, salvo el DNS.
+- ✅ **Interfaz** (#4):
+  - interruptor de tema solo con CSS (L-07);
+  - capturas ampliables con `:target` (L-08);
+  - diseño renovado;
+  - guardia de las notas de la app (L-09, spec §12).
+
+Pendiente:
+
+- ⏳ Lighthouse y accesibilidad (LP-08, LP-09), con revisión manual con teclado y TalkBack en el g31.
+- ⏳ Despliegue en el servidor (spec §8.6) y cierre de LP-06 y LP-07; después, los cambios en la app que pide «Documentación».
+- ⏳ `gitleaks/gitleaks-action@v2` usa Node 20, que está obsoleto: actualizarlo cuando haya versión nueva.
+- ⚪ Las fuentes de las capturas miden 540 px. Para una vista ampliada nítida en pantallas de alta densidad, repetirlas a 1080 px.
+
+## Cómo se trabaja
+
+- **Transparencia con la app (finalidad de la web):** la web dice y muestra solo lo que la app hace.
+  - Los cambios de la app llegan como notas en `docs/cambios-app/` (PR desde la app).
+  - Al trabajar en la web se aplican las notas ⏳ pendientes (textos, preguntas frecuentes y capturas en los dos temas) y se marcan.
+  - `tools/check_app_notes.py --strict` tiene que pasar antes de desplegar.
+- **Vista previa local:** `docker compose up -d --build` → `http://localhost:9020`.
+  - Los proyectos personales usan puertos 9000+ en local. `nordirwork` ya ocupa el 9010 y el 9011; silente-web usa el 9020, solo en `127.0.0.1`.
+  - En producción no hay `ports:` (regla 1).
+- **Tests:**
+  - `python3 -m unittest discover -s tests -t .` para el sitio;
+  - `SILENTE_URL=http://localhost:9020 python3 -m unittest tests.test_http` para el contenedor.
+- **Recursos derivados** (WOFF2, WebP, favicons, OG): se generan con `tools/make_assets.py <parte>` y se versionan, para que la imagen de Docker solo necesite `markdown`. Las fuentes y los PNG no son reproducibles byte a byte, así que solo se regenera la parte que cambia.
+- **Decisiones de implementación:**
   - `--text-muted` claro es `warmGrayInk` (`#65626A`), no `warmGray`. `warmGray` se queda en 4,3:1 sobre `--surface`.
   - El foco es de dos tonos: anillo `--accent` más anillo interior `--text`, porque `duskLavender` se queda en 2,99:1 sobre `softLinen`.
-  - Los recursos derivados (WOFF2, WebP, favicons, OG) se generan con `tools/make_assets.py` y se versionan, para que la imagen de Docker solo necesite `markdown`.
-
-## Primeros pasos para la sesión que empiece el proyecto
-
-1. Leer `docs/spec.md` y este archivo.
-2. ✅ Repositorio creado. ✅ LP-11: capturas nuevas en claro y oscuro, tomadas en el g31 ([docs/capturas.md](docs/capturas.md)); las de `docs/referencias/capturas/` ya no se usan.
-3. Seguir el plan del §11 del spec:
-   - generador `build.py` + plantillas + CSS → `dist/`;
-   - `nginx.conf` + `Dockerfile` multi-etapa (Python → `nginxinc/nginx-unprivileged:<versión fija>-alpine`, puerto 8080);
-   - tests del sitio generado (LP-01…LP-04, LP-10, LP-12) y CI de GitHub Actions;
-   - `deploy/nomad/` (compose, `.env.example`, README);
-   - simulación local con `revisar_proyecto.sh` y levantar el contenedor de verdad;
-   - Lighthouse y accesibilidad (LP-08, LP-09).
-4. Para todo lo relacionado con el servidor, usar la skill **`desplegar-en-nomadservernw`**.
+  - Los colores son tokens `light-dark()` en `:root`. El interruptor fija `color-scheme` con `:has()`.
+- Para todo lo relacionado con el servidor, usar la skill **`desplegar-en-nomadservernw`**.
 
 ## Valores reales del servidor
 
@@ -121,6 +128,11 @@ Son los de la app y su política de privacidad. La web los cumple igual:
 
 - Conventional Commits en español: `feat(inicio): sección de privacidad`.
 - Ramas `feat/*`, `fix/*`, `chore/*`, `docs/*` → PR hacia `main`; solo *squash merge*.
+- `main` está protegida (2026-10-02):
+  - todo entra por PR, también para los administradores;
+  - hay que pasar los tres checks del CI («Build y tests del sitio», «Imagen Docker y tests HTTP», «Secretos (gitleaks)») con la rama al día respecto a `main`;
+  - historial lineal, sin *force push* ni borrado, y con las conversaciones resueltas.
+- PR apilados: antes de fusionar el de abajo, cambiar la base del siguiente a `main`; después, rebasarlo con `git rebase --onto origin/main <tip anterior> <rama>` y subirlo con `--force-with-lease`.
 - En los commits y PR, la atribución que indique el sistema.
 
 ## Documentación
