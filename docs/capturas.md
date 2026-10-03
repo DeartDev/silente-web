@@ -12,9 +12,14 @@
 | Temas | Claro y oscuro, con `cmd uimode night no/yes`; la app y el Lector en «Sistema» / «Como la app» |
 | Barra de estado | Recortada: los 100 px de arriba (su alto real en el g31) |
 | Botón flotante del menú de accesibilidad | Ocultado durante la sesión y restaurado al terminar |
-| Fuentes | `src/capturas/{claro,oscuro}/*.jpg`, 540 × 1150, sin metadatos |
+| Fuentes | `src/capturas/{claro,oscuro}/*.jpg`, 540 × 1150 (la mitad de la resolución del g31), sin metadatos |
 
-La web sirve cada captura en WebP de 240 y 432 px de ancho. Con `<picture>`, el tema oscuro del sistema elige la variante oscura. Para regenerar los WebP: `python3 tools/make_assets.py shots`.
+La web sirve cada captura en WebP:
+
+- **En la página:** 240 y 432 px de ancho. Con «Sistema», un `<picture>` elige la variante del tema del sistema. Con «Claro» u «Oscuro» en el interruptor (spec L-07), el CSS muestra la variante elegida, que solo se descarga entonces.
+- **En la vista ampliada** (L-08): 432 y 540 px. Se descarga al abrirla.
+
+Las fuentes miden 540 px de ancho, así que en pantallas de alta densidad la vista ampliada se ve algo suave. Para más nitidez habría que repetir las capturas a resolución completa (1080 px). Para regenerar los WebP: `python3 tools/make_assets.py shots`.
 
 ## Revisión (spec §6.3)
 

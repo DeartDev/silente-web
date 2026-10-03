@@ -12,13 +12,20 @@ Se publica en **https://silente.nordirwork.com**, dockerizada, en el servidor do
 
 ## Estado
 
-- ✅ Spec validado (decisiones L-01…L-06 cerradas).
+- ✅ Spec validado (decisiones L-01…L-06 cerradas; L-07…L-09 añadidas el 2026-10-02: interruptor de tema, capturas ampliables y sincronía con la app).
 - ✅ Directorio preparado con los recursos: textos legales, logo, fuentes, capturas y referencias.
 - ✅ Repositorio público [DeartDev/silente-web](https://github.com/DeartDev/silente-web) creado (2026-10-02): solo *squash merge* y borrado de ramas al fusionar. gitleaks limpio y capturas revisadas antes de publicarlo.
 - ⏳ Falta proteger `main` en GitHub (gratis en repos públicos) cuando exista el CI, exigiendo sus checks.
 - ✅ Generador (`build.py`), plantillas, CSS, tests del sitio y CI (rama `feat/generador`, 2026-10-02).
 - ✅ nginx (`nginx/`), `Dockerfile`, `deploy/nomad/` y tests HTTP (rama `feat/docker`). `revisar_proyecto.sh` en verde en simulación, salvo el DNS.
+- ✅ Interruptor de tema solo con CSS (L-07), capturas ampliables con `:target` (L-08), diseño renovado y guardia de las notas de la app (L-09, spec §12). Rama `feat/diseno`.
 - ⏳ Lighthouse (LP-08, LP-09) y despliegue en el servidor.
+- **Transparencia con la app (finalidad de la web):** la web dice y muestra solo lo que la app hace. Los cambios de la app llegan como notas en `docs/cambios-app/` (PR desde la app). Al trabajar en la web, se aplican las notas ⏳ pendientes:
+  - textos;
+  - preguntas frecuentes;
+  - capturas en los dos temas.
+
+  Después, la nota se marca. `tools/check_app_notes.py --strict` tiene que pasar antes de desplegar.
 - **Vista previa local:** `docker compose up -d --build` → `http://localhost:9020`. Los proyectos personales usan puertos 9000+ en local. `nordirwork` ya ocupa el 9010 y el 9011; silente-web usa el 9020, solo en `127.0.0.1`. En producción no hay `ports:` (regla 1).
 - Decisiones de implementación:
   - `--text-muted` claro es `warmGrayInk` (`#65626A`), no `warmGray`. `warmGray` se queda en 4,3:1 sobre `--surface`.

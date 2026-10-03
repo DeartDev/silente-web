@@ -38,6 +38,12 @@
         <li><a href="/#preguntas">Preguntas</a></li>
       </ul>
     </nav>
+    <fieldset class="theme-switch">
+      <legend class="visually-hidden">Tema de la web</legend>
+      <input type="radio" name="tema" id="tema-sistema" value="sistema" checked><label for="tema-sistema">Sistema</label>
+      <input type="radio" name="tema" id="tema-claro" value="claro"><label for="tema-claro">Claro</label>
+      <input type="radio" name="tema" id="tema-oscuro" value="oscuro"><label for="tema-oscuro">Oscuro</label>
+    </fieldset>
   </div>
 </header>
 <main id="contenido">
@@ -45,15 +51,20 @@
 </main>
 <footer class="site-footer">
   <div class="wrap">
-    <p>Silente es una app de NordirWork.</p>
-    <ul>
-      <li><a href="/privacidad">Política de privacidad</a></li>
-      <li><a href="/terminos">Términos de uso</a></li>
-      <li><a href="mailto:pqrs@nordirwork.com">Contacto</a></li>
-    </ul>
-    <p>Esta web no usa cookies ni analítica.</p>
-    <p>Tipografías <a href="/licencias/OFL-Lora.txt">Lora</a> y <a href="/licencias/OFL-NunitoSans.txt">Nunito Sans</a>, con licencia SIL Open Font License.</p>
-    <p>© {{ year }} NordirWork · v{{ version }}</p>
+    <div class="footer-brand">
+      <p class="brand">{{ logo }}<span>Silente</span></p>
+      <p>Silente es una app de NordirWork.</p>
+      <p>Esta web no usa cookies ni analítica.</p>
+    </div>
+    <div>
+      <ul>
+        <li><a href="/privacidad">Política de privacidad</a></li>
+        <li><a href="/terminos">Términos de uso</a></li>
+        <li><a href="mailto:pqrs@nordirwork.com">Contacto</a></li>
+      </ul>
+      <p>Tipografías <a href="/licencias/OFL-Lora.txt">Lora</a> y <a href="/licencias/OFL-NunitoSans.txt">Nunito Sans</a>, con licencia SIL Open Font License.</p>
+      <p>© {{ year }} NordirWork. Versión de la web: {{ version }}.</p>
+    </div>
   </div>
 </footer>
 </body>

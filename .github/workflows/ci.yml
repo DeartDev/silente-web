@@ -21,6 +21,8 @@ jobs:
         run: pip install -r requirements.txt
       - name: Textos legales sin marcadores y con fecha
         run: python3 tools/check_legal_placeholders.py
+      - name: Notas de la app (docs/cambios-app/)
+        run: python3 tools/check_app_notes.py --github
       - name: Build
         run: python3 build.py
       - name: Tests (LP-01…LP-04, LP-10, LP-12)

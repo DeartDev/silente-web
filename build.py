@@ -11,8 +11,8 @@ committed.
 Templates use `{{ name }}` placeholders:
 - `{{ asset:path }}` → URL of a hashed asset (`/assets/name.<hash>.ext`);
 - `{{ absolute_asset:path }}` → the same, with the site origin;
-- `{{ shot:name|alt[|eager] }}` → a screenshot `<picture>`: the light one by
-  default and the dark one with `prefers-color-scheme: dark`;
+- `{{ shot:name|alt[|eager] }}` → a screenshot in a phone frame that opens a
+  full-size view (`:target`, no JavaScript). See `Site.shot`;
 - anything else → a value of the page context (already safe HTML).
 A placeholder without a value fails the build.
 """
@@ -53,6 +53,9 @@ ASSETS = {
 }
 SHOT_WIDTHS = (240, 432)
 SHOT_THEMES = ("claro", "oscuro")
+# Full-size view: up to ~45vh wide (90vh tall, 1080 × 2300 screenshots).
+ZOOM_WIDTHS = (432, 540)
+ZOOM_SIZES = "min(92vw, 45vh)"
 # The phone frame is 240 px wide with a 10 px border.
 SHOT_SIZES = "220px"
 
@@ -141,27 +144,58 @@ class Site:
             raise BuildError(f"recurso desconocido: {logical}")
         return self.urls[logical]
 
-    def shot(self, spec: str) -> str:
-        name, alt, *flags = spec.split("|")
-        variants = {}
+    def shot_variants(self, name: str, widths: tuple[int, ...]) -> tuple[dict[str, str], tuple[int, int]]:
+        """srcset of each theme, and the size of the smallest image."""
+        srcsets, sizes = {}, set()
         for theme in SHOT_THEMES:
-            widths = []
-            for width in SHOT_WIDTHS:
+            candidates = []
+            for width in widths:
                 logical = f"img/{name}-{theme}-{width}.webp"
-                widths.append((width, self.asset(logical), webp_size(SRC / logical)))
-            variants[theme] = widths
-        sizes = {widths[0][2] for widths in variants.values()}
+                candidates.append(f"{self.asset(logical)} {width}w")
+                if width == widths[0]:
+                    sizes.add(webp_size(SRC / logical))
+            srcsets[theme] = ", ".join(candidates)
         if len(sizes) != 1:
             raise BuildError(f"{name}: las capturas clara y oscura tienen tamaños distintos")
-        (width, height) = sizes.pop()
-        srcset = {t: ", ".join(f"{url} {w}w" for w, url, _ in v) for t, v in variants.items()}
-        loading = 'fetchpriority="high"' if flags == ["eager"] else 'loading="lazy"'
+        return srcsets, sizes.pop()
+
+    def shot_images(self, name: str, alt: str, widths: tuple[int, ...], sizes: str, loading: str) -> str:
+        """The screenshot three times; the CSS shows one (see site.css, Theme):
+
+        - `.shot-auto`: a <picture> that follows prefers-color-scheme, so the
+          browser only downloads the variant of the system theme;
+        - `.shot-claro` / `.shot-oscuro`: hidden until the theme switch picks
+          one; lazy, so they are only downloaded when shown.
+        """
+        srcsets, (width, height) = self.shot_variants(name, widths)
+        first = srcsets["claro"].split()[0]
+        common = f'sizes="{sizes}" width="{width}" height="{height}" alt="{html.escape(alt)}" decoding="async"'
         return (
-            f'<picture><source media="(prefers-color-scheme: dark)" srcset="{srcset["oscuro"]}" '
-            f'sizes="{SHOT_SIZES}" width="{width}" height="{height}">'
-            f'<img src="{variants["claro"][0][1]}" srcset="{srcset["claro"]}" sizes="{SHOT_SIZES}" '
-            f'width="{width}" height="{height}" alt="{html.escape(alt)}" '
-            f'{loading} decoding="async"></picture>'
+            f'<picture class="shot-auto"><source media="(prefers-color-scheme: dark)" '
+            f'srcset="{srcsets["oscuro"]}" sizes="{sizes}" width="{width}" height="{height}">'
+            f'<img src="{first}" srcset="{srcsets["claro"]}" {common} {loading}></picture>'
+            + "".join(
+                f'<img class="shot-{theme}" src="{srcsets[theme].split()[0]}" srcset="{srcsets[theme]}" '
+                f'{common} loading="lazy">'
+                for theme in SHOT_THEMES
+            )
+        )
+
+    def shot(self, spec: str) -> str:
+        """A screenshot in a phone frame. The frame is a link to a full-size
+        view, shown with :target (no JavaScript); closing goes back to it."""
+        name, alt, *flags = spec.split("|")
+        loading = 'fetchpriority="high"' if flags == ["eager"] else 'loading="lazy"'
+        small = self.shot_images(name, alt, SHOT_WIDTHS, SHOT_SIZES, loading)
+        large = self.shot_images(name, alt, ZOOM_WIDTHS, ZOOM_SIZES, 'loading="lazy"')
+        return (
+            f'<a class="phone" id="captura-{name}" href="#ver-{name}">'
+            f'<span class="visually-hidden">Ampliar la captura: </span>{small}'
+            f'<span class="zoom-hint" aria-hidden="true">Ampliar</span></a>\n'
+            f'<div class="lightbox" id="ver-{name}">'
+            f'<a class="lightbox-backdrop" href="#captura-{name}" tabindex="-1" aria-hidden="true"></a>'
+            f'<div class="lightbox-frame">{large}</div>'
+            f'<a class="lightbox-close" href="#captura-{name}">Cerrar</a></div>'
         )
 
     # Templates
