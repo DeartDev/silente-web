@@ -28,6 +28,33 @@ jobs:
       - name: Guardia del nombre antiguo (LP-10)
         run: python3 tools/check_brand_name.py dist
 
+  imagen:
+    name: Imagen Docker y tests HTTP
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - name: Build de la imagen
+        run: docker build -t silente-web:ci .
+      - name: Arrancar con el endurecimiento de producción
+        run: |
+          docker run -d --name silente-web-ci --read-only --tmpfs /tmp \
+            --cap-drop ALL --security-opt no-new-privileges:true \
+            -p 127.0.0.1:9020:8080 silente-web:ci
+          for i in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:9020/salud && break
+            sleep 1
+          done
+      - name: Tests HTTP (cabeceras, 404, redirecciones, métodos)
+        env:
+          SILENTE_URL: http://127.0.0.1:9020
+        run: python3 -m unittest tests.test_http -v
+      - name: Logs del contenedor
+        if: always()
+        run: docker logs silente-web-ci
+
   gitleaks:
     name: Secretos (gitleaks)
     runs-on: ubuntu-24.04

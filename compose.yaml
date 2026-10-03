@@ -1,0 +1,25 @@
+# Local preview only: http://localhost:9020
+#   docker compose up -d --build
+# Production uses deploy/nomad/docker-compose.yml (no ports:, behind Traefik).
+name: silente-web-local
+
+services:
+  web:
+    build: .
+    image: silente-web:local
+    container_name: silente-web-local
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ports:
+      - "127.0.0.1:9020:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/salud || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

@@ -1,0 +1,40 @@
+# Production compose for nomadservernw (contract: nomad_server annex 96).
+# Lives in /srv/nomad/silente/docker-compose.yml, one level above codigo/.
+# `git pull` does not update this copy: copy it again when it changes.
+services:
+  web:
+    build:
+      context: ./codigo
+      dockerfile: Dockerfile
+    image: silente-web:0.1.0            # pinned; bump with VERSION
+    container_name: silente-web
+    restart: unless-stopped
+    env_file:
+      - .env
+    read_only: true
+    tmpfs:
+      - /tmp                            # nginx-unprivileged writes its pid and temp files here
+    networks:
+      - proxy
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      # A real GET (not --spider) of a file nginx serves from dist/
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/salud || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.silente.rule=Host(`${APP_HOST:?Falta APP_HOST en .env}`)"
+      - "traefik.http.routers.silente.entrypoints=web"
+      - "traefik.http.routers.silente.middlewares=publico@file"
+      - "traefik.http.services.silente.loadbalancer.server.port=8080"
+
+networks:
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK:-nomadservernw_proxy}

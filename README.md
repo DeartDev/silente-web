@@ -7,9 +7,20 @@ Web estática, sin JavaScript, sin cookies y sin analítica, servida con nginx e
 ## Estado
 
 - ✅ Generador, plantillas, CSS, tests del sitio y CI (spec §11, paso 2).
-- ⏳ `nginx.conf`, `Dockerfile` y `deploy/nomad/`; Lighthouse; despliegue.
+- ✅ nginx, `Dockerfile` y `deploy/nomad/`, con la auditoría del contrato en verde en simulación (salvo el DNS).
+- ⏳ Lighthouse (LP-08, LP-09) y despliegue en el servidor.
 
 Ver [`CLAUDE.md`](CLAUDE.md) para el contexto y los siguientes pasos.
+
+## Verla en local
+
+```sh
+docker compose up -d --build      # → http://localhost:9020
+SILENTE_URL=http://localhost:9020 .venv/bin/python -m unittest tests.test_http -v
+docker compose down
+```
+
+El `compose.yaml` de la raíz es solo para verla en local: publica el puerto 9020 en `127.0.0.1` y usa el mismo endurecimiento que producción. El de producción está en [`deploy/nomad/`](deploy/nomad/README.md) y no publica puertos.
 
 ## Generar y probar el sitio
 
@@ -44,7 +55,12 @@ Para publicar la insignia de Google Play cuando la app esté en la tienda, se re
 | `src/img/` | Capturas en WebP (240 y 432 px, de cada tema) e imagen Open Graph |
 | `tests/test_site.py` | Comprobaciones del sitio generado (ver abajo) |
 | `tools/` | `make_assets.py` y las guardias `check_legal_placeholders.py` y `check_brand_name.py`, adaptadas de la app |
-| `.github/workflows/ci.yml` | Build, tests, guardias y gitleaks |
+| `nginx/` | `nginx.conf` y las cabeceras de seguridad que añade nginx (CSP, COOP, CORP) |
+| `Dockerfile` | Multi-etapa: build con `python:3.14.8-alpine3.24` → `nginxinc/nginx-unprivileged:1.30.5-alpine3.24`, puerto 8080 |
+| `compose.yaml` | Vista previa local en `http://localhost:9020` |
+| `deploy/nomad/` | Compose de producción, `.env.example` y [procedimiento de despliegue](deploy/nomad/README.md) |
+| `tests/test_http.py` | Comprobaciones del contenedor en marcha (necesita `SILENTE_URL`) |
+| `.github/workflows/ci.yml` | Build, tests, guardias, imagen Docker con tests HTTP y gitleaks |
 
 ## Qué comprueban los tests
 
@@ -60,7 +76,14 @@ Para publicar la insignia de Google Play cuando la app esté en la tienda, se re
 | §7.1 | Peso de la página de inicio (≤ 500 KB) y número de peticiones (≤ 15) |
 | §7.3 | Encabezados en orden, *landmarks*, enlace «Saltar al contenido», `alt` y tamaño en las imágenes, y contraste AA de los colores en los dos temas |
 
-Las cabeceras HTTP (CSP, sin `Set-Cookie`, 404 real) se comprueban cuando exista `nginx.conf`.
+`tests/test_http.py` comprueba el servidor de verdad (también en el CI):
+
+- CSP, COOP y CORP en todas las respuestas, sin `Set-Cookie` y sin versión en `Server` (LP-03);
+- 404 con la página de Silente para cualquier ruta desconocida, también `/404` y `/404.html` (LP-12);
+- 301 de `/privacidad.html` y `/privacidad/` a `/privacidad`;
+- solo `GET` y `HEAD`, con 405 y `Allow` para el resto;
+- caché `immutable` en `/assets/` y `no-cache` en el HTML, y los `Content-Type` correctos;
+- archivos ocultos denegados.
 
 ## Índice
 

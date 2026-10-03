@@ -1,0 +1,13 @@
+# Only what the Dockerfile copies matters; keep the context small.
+.git
+.github
+.venv
+dist
+docs
+deploy
+tests
+src/capturas
+fonts/*.ttf
+**/__pycache__
+.env
+.env.*
