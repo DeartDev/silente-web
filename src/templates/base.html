@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }}</title>
+<meta name="description" content="{{ description }}">
+{{ head_extra }}
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F5F3EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121014" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="{{ asset:brand/silente-mark.svg }}" type="image/svg+xml">
+<link rel="icon" href="{{ asset:brand/favicon-32.png }}" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="{{ asset:fonts/lora.woff2 }}" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{{ asset:css/site.css }}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Silente">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="{{ title }}">
+<meta property="og:description" content="{{ description }}">
+<meta property="og:url" content="{{ url }}">
+<meta property="og:image" content="{{ absolute_asset:img/og.png }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="El logo de Silente junto al lema «Tu espacio de lectura»">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/">{{ logo }}<span>Silente</span></a>
+    <nav class="site-nav" aria-label="Principal">
+      <ul>
+        <li><a href="/#que-es">Qué es</a></li>
+        <li><a href="/#privacidad">Privacidad</a></li>
+        <li><a href="/#preguntas">Preguntas</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main id="contenido">
+{{ content }}
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Silente es una app de NordirWork.</p>
+    <ul>
+      <li><a href="/privacidad">Política de privacidad</a></li>
+      <li><a href="/terminos">Términos de uso</a></li>
+      <li><a href="mailto:pqrs@nordirwork.com">Contacto</a></li>
+    </ul>
+    <p>Esta web no usa cookies ni analítica.</p>
+    <p>Tipografías <a href="/licencias/OFL-Lora.txt">Lora</a> y <a href="/licencias/OFL-NunitoSans.txt">Nunito Sans</a>, con licencia SIL Open Font License.</p>
+    <p>© {{ year }} NordirWork · v{{ version }}</p>
+  </div>
+</footer>
+</body>
+</html>
