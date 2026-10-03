@@ -286,6 +286,13 @@ class SiteTest(unittest.TestCase):
                 back = [a for a in page.find("a") if a.get("href") == f"#captura-{name}"]
                 closes = [a for a in back if a.get("class") == "lightbox-close"]
                 self.assertEqual(len(closes), 1)
+        # Focusable, so that opening it moves the focus inside (site.css hides
+        # it when the focus leaves: WCAG 2.4.11).
+        views = [d for d in page.find("div") if d.get("class") == "lightbox"]
+        self.assertEqual(len(views), 6)
+        for view in views:
+            self.assertEqual((view.get("role"), view.get("tabindex")), ("dialog", "-1"))
+            self.assertTrue(view.get("aria-label"))
 
     def test_srcset_files_exist(self):
         for name, page in self.pages.items():
@@ -355,6 +362,20 @@ class SiteTest(unittest.TestCase):
         images = len([a for a in self.pages["index.html"].find("a") if a.get("class") == "phone"])
         others = {r for r in resources if not r.endswith(".webp")}
         self.assertLessEqual(1 + images + len(others), 15)
+
+
+class MinifyCssTest(unittest.TestCase):
+    def test_keeps_what_changes_the_meaning(self):
+        css = "/* note */\n:root:has(#a:checked) .b ,\n.c {\n  width: calc(100vh - 6rem);\n  content: \"+\";\n}\n"
+        self.assertEqual(
+            build.minify_css(css),
+            ':root:has(#a:checked) .b,.c{width:calc(100vh - 6rem);content:"+"}\n',
+        )
+
+    def test_generated_css_has_no_comments(self):
+        css = build.minify_css((ROOT / "src/css/site.css").read_text(encoding="utf-8"))
+        self.assertNotIn("/*", css)
+        self.assertIn(":root:has(#tema-oscuro:checked) .shot-oscuro", css)
 
 
 class ContrastTest(unittest.TestCase):

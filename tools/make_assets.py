@@ -42,11 +42,15 @@ LATIN = (
     "U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2190-2193,U+2212,"
     "U+2215,U+FEFF,U+FFFD"
 )
+# target → (source, weight). A tuple keeps that range of the weight axis
+# variable; a number makes a static instance, much smaller. Lora is static:
+# the page uses 600 (titles, preloaded) and the italic 400 (the motto and the
+# principles). Nunito Sans uses 400 to 700.
 FONT_FILES = {
-    "Lora-Variable.ttf": "lora.woff2",
-    "Lora-Italic-Variable.ttf": "lora-italic.woff2",
-    "NunitoSans-Variable.ttf": "nunito-sans.woff2",
-    "NunitoSans-Italic-Variable.ttf": "nunito-sans-italic.woff2",
+    "lora-600.woff2": ("Lora-Variable.ttf", 600),
+    "lora-italic.woff2": ("Lora-Italic-Variable.ttf", 400),
+    "nunito-sans.woff2": ("NunitoSans-Variable.ttf", (400, 700)),
+    "nunito-sans-italic.woff2": ("NunitoSans-Italic-Variable.ttf", (400, 700)),
 }
 SHOT_THEMES = ["claro", "oscuro"]
 SHOT_NAMES = [
@@ -58,16 +62,17 @@ SHOT_NAMES = [
     "libro-de-silente-portada",
 ]
 SHOT_WIDTHS = [240, 432, 540]  # 540: the full-size view (sources are 540 wide)
-# Only the weight axis stays variable, limited to the weights the CSS uses;
-# the rest is pinned to its default (Nunito Sans: wdth, opsz, YTLC).
-WEIGHTS = (400, 700)
+# 72: text in the screenshots stays sharp, ~12 % smaller than 80 (LCP, LP-09).
+SHOT_QUALITY = 72
+# Every axis but the weight is pinned to its default (Nunito Sans: wdth,
+# opsz, YTLC).
 NIGHT_BLACK = "#121014"
 IVORY_MIST = "#EDEBE6"
 ASH_GRAY = "#A6A3AA"
 
 
 def make_fonts() -> None:
-    for source, target in FONT_FILES.items():
+    for target, (source, weight) in FONT_FILES.items():
         options = subset.Options()
         options.flavor = "woff2"
         options.layout_features = ["*"]
@@ -78,7 +83,7 @@ def make_fonts() -> None:
         subsetter.populate(unicodes=subset.parse_unicodes(LATIN))
         subsetter.subset(font)
         limits = {axis.axisTag: None for axis in font["fvar"].axes}
-        limits["wght"] = WEIGHTS
+        limits["wght"] = weight
         font = instancer.instantiateVariableFont(font, limits)
         subset.save_font(font, str(FONTS / target), options)
         print(f"fonts/{target}: {(FONTS / target).stat().st_size // 1024} KB")
@@ -92,7 +97,7 @@ def make_shots() -> None:
                 for width in SHOT_WIDTHS:
                     height = round(shot.height * width / shot.width)
                     out = IMG / f"{name}-{theme}-{width}.webp"
-                    shot.resize((width, height), Image.LANCZOS).save(out, "WEBP", quality=80, method=6)
+                    shot.resize((width, height), Image.LANCZOS).save(out, "WEBP", quality=SHOT_QUALITY, method=6)
                     print(f"src/img/{out.name}: {width}×{height}, {out.stat().st_size // 1024} KB")
 
 

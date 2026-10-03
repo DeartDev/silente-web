@@ -1,0 +1,12 @@
+{
+  "name": "silente-web-a11y",
+  "private": true,
+  "description": "Keyboard and accessibility checks with a real Chrome (LP-08).",
+  "type": "module",
+  "scripts": {
+    "test": "node keyboard.mjs"
+  },
+  "devDependencies": {
+    "puppeteer-core": "25.12.0"
+  }
+}

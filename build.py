@@ -43,7 +43,7 @@ PLAY_URL = None
 
 # Logical asset path → source file.
 ASSETS = {
-    "fonts/lora.woff2": ROOT / "fonts/lora.woff2",
+    "fonts/lora-600.woff2": ROOT / "fonts/lora-600.woff2",
     "fonts/lora-italic.woff2": ROOT / "fonts/lora-italic.woff2",
     "fonts/nunito-sans.woff2": ROOT / "fonts/nunito-sans.woff2",
     "fonts/nunito-sans-italic.woff2": ROOT / "fonts/nunito-sans-italic.woff2",
@@ -108,6 +108,18 @@ def webp_size(path: Path) -> tuple[int, int]:
     raise BuildError(f"{path}: formato WebP desconocido")
 
 
+def minify_css(css: str) -> str:
+    """Drops comments and the whitespace that does not change the meaning:
+    around braces, semicolons and commas, and after colons. Spaces before a
+    colon are kept («a :hover» is not «a:hover»), and so are the ones inside
+    calc() and between selectors."""
+    css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    css = re.sub(r"\s+", " ", css)
+    css = re.sub(r"\s*([{};,])\s*", r"\1", css)
+    css = re.sub(r":\s+", ":", css)
+    return css.replace(";}", "}").strip() + "\n"
+
+
 class Site:
     def __init__(self, out: Path, legal_dir: Path):
         self.out = out
@@ -133,7 +145,7 @@ class Site:
             self.add_asset(logical, source.read_bytes())
         for shot in sorted((SRC / "img").glob("*.webp")):
             self.add_asset(f"img/{shot.name}", shot.read_bytes())
-        css = self.render(TEMPLATES.parent / "css/site.css", {})
+        css = minify_css(self.render(TEMPLATES.parent / "css/site.css", {}))
         self.add_asset("css/site.css", css.encode("utf-8"))
         for target, source in ROOT_FILES.items():
             (self.out / target).parent.mkdir(parents=True, exist_ok=True)
@@ -183,7 +195,9 @@ class Site:
 
     def shot(self, spec: str) -> str:
         """A screenshot in a phone frame. The frame is a link to a full-size
-        view, shown with :target (no JavaScript); closing goes back to it."""
+        view, shown with :target (no JavaScript); closing goes back to it.
+        The view has tabindex="-1" so that opening it moves the focus into it
+        (see site.css: it hides itself when the keyboard focus leaves it)."""
         name, alt, *flags = spec.split("|")
         loading = 'fetchpriority="high"' if flags == ["eager"] else 'loading="lazy"'
         small = self.shot_images(name, alt, SHOT_WIDTHS, SHOT_SIZES, loading)
@@ -192,7 +206,8 @@ class Site:
             f'<a class="phone" id="captura-{name}" href="#ver-{name}">'
             f'<span class="visually-hidden">Ampliar la captura: </span>{small}'
             f'<span class="zoom-hint" aria-hidden="true">Ampliar</span></a>\n'
-            f'<div class="lightbox" id="ver-{name}">'
+            f'<div class="lightbox" id="ver-{name}" role="dialog" tabindex="-1" '
+            f'aria-label="Captura ampliada">'
             f'<a class="lightbox-backdrop" href="#captura-{name}" tabindex="-1" aria-hidden="true"></a>'
             f'<div class="lightbox-frame">{large}</div>'
             f'<a class="lightbox-close" href="#captura-{name}">Cerrar</a></div>'

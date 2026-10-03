@@ -253,13 +253,14 @@ Las imágenes por debajo del pliegue usan `loading="lazy"`. Las fuentes se preca
 El middleware `publico@file` de Traefik ya añade `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy` y quita `Server`/`X-Powered-By`. **No se redefine.** nginx añade solo lo que falta:
 
 ```nginx
-add_header Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" always;
+add_header Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'self'; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" always;
 add_header Cross-Origin-Opener-Policy "same-origin" always;
 add_header Cross-Origin-Resource-Policy "same-origin" always;
 server_tokens off;
 ```
 
 - Sin estilos en línea (la CSP no permite `'unsafe-inline'`): el CSS va en un archivo.
+- `connect-src 'self'` (añadido el 2026-10-02) no abre nada, porque no puede ejecutarse ningún script. Permite que herramientas como Lighthouse lean `robots.txt` desde la página: sin él, su auditoría SEO lo da por fallido.
 - **HSTS**: Traefik no lo emite (el TLS termina en Cloudflare, ver `middlewares.yml`). Se activa en el panel de Cloudflare para el subdominio, sin `includeSubDomains`.
 - Solo `GET` y `HEAD`; el resto devuelve 405.
 - Sin listado de directorios; sin servir archivos ocultos (`location ~ /\. { deny all; }`).
